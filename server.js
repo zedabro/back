@@ -294,11 +294,11 @@ app.get("/api/pro", async (req, res) => {
   const { categoriaId } = req.query; // Asegúrate de que estás usando `categoriaId` en lugar de `categoria`
 
   try {
-    let query = "SELECT * FROM productos";
+    let query = "SELECT * FROM productos WHERE stock > 0";
     const replacements = [];
 
     if (categoriaId) {
-      query += ` INNER JOIN subcategorias ON productos.id_subcategoria = subcategorias.id_subcategoria WHERE subcategorias.id_categoria = ?`;
+      query += ` AND id_subcategoria IN (SELECT id_subcategoria FROM subcategorias WHERE id_categoria = ?)`;
       replacements.push(categoriaId);
     }
 
@@ -314,6 +314,7 @@ app.get("/api/pro", async (req, res) => {
     res.status(500).json({ error: "Error al obtener los productos" });
   }
 });
+
 
 app.post("/api/auth/venta", async (req, res) => {
   const { id_cliente, productos, total, metodo_pago_id } = req.body;
