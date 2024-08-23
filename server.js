@@ -141,14 +141,14 @@ app.post("/api/solicitar-recuperacion", async (req, res) => {
     expiresIn: "1h",
   });
 
-  const resetLink = https://back-wwpy.onrender.com/reset-password?token=${token};
+  const resetLink = `https://back-wwpy.onrender.com/reset-password?token=${token}`;
 
   try {
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: usuario.email,
       subject: "Recuperación de contraseña",
-      html: <p>Haga clic en el siguiente enlace para restablecer su contraseña:</p><a href="${resetLink}">${resetLink}</a>,
+      html: `<p>Haga clic en el siguiente enlace para restablecer su contraseña:</p><a href="${resetLink}">${resetLink}</a>`,
     });
 
     res.status(200).json({ message: "Correo de recuperación enviado" });
