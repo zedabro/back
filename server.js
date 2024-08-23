@@ -88,7 +88,7 @@ app.post("/api/auth/register", async (req, res) => {
     );
 
     const token = jwt.sign({ email }, secretKey, { expiresIn: "1h" });
-    const verificationLink = `https://back-wwpy.onrender.com/verificacion-correo?token=${token}`;
+    const verificationLink = `https://back-wwpy.onrender.com/api/auth/verify-email?token=${token}`;
 
     await sendEmail(
       email,
