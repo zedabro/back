@@ -102,7 +102,7 @@ app.post("/api/auth/register", async (req, res) => {
     console.error("Error al enviar el correo:", error);
   }
   const token = jwt.sign({ email }, secretKey, { expiresIn: "1h" });
-  const verificationLink = `http://localhost:3000/confirmacion-verificacion?token=${token}`;
+  const verificationLink = `https://back-wwpy.onrender.com/confirmacion-verificacion?token=${token}`;
 
   // Intentar enviar el correo electrónico
   try {
@@ -1042,8 +1042,6 @@ app.get("/api/protected", (req, res) => {
     res.status(401).json({ error: "Token no válido o expirado" });
   }
 });
-
-app.use(express.static(path.join(__dirname, "dist")));
 
 // Ruta de prueba para verificar el servidor
 app.get("/", (req, res) => {
