@@ -378,14 +378,35 @@ app.get("/api/auth/verify-email", async (req, res) => {
         <html>
           <head>
             <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+            <style>
+              body {
+                font-family: Arial, sans-serif;
+                background-color: #f4f4f4;
+              }
+              .swal2-popup {
+                font-size: 1.6rem !important;
+                padding: 2.5rem !important;
+                width: 30rem !important;
+              }
+              .swal2-title {
+                font-size: 2rem !important;
+              }
+              .swal2-content {
+                font-size: 1.2rem !important;
+              }
+            </style>
           </head>
           <body>
             <script>
               Swal.fire({
                 icon: 'success',
                 title: '¡Éxito!',
-                text: 'Email verificado exitosamente.',
-                confirmButtonColor: '#0a641a'
+                text: 'Tu correo electrónico ha sido verificado exitosamente.',
+                confirmButtonColor: '#0a641a',
+                confirmButtonText: 'Continuar',
+                customClass: {
+                  popup: 'animated bounceIn'
+                }
               }).then(() => {
                 window.location.href = 'https://sports-tienda.vercel.app/login'; // Redirigir a tu frontend después de cerrar el alert
               });
@@ -399,14 +420,35 @@ app.get("/api/auth/verify-email", async (req, res) => {
         <html>
           <head>
             <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+            <style>
+              body {
+                font-family: Arial, sans-serif;
+                background-color: #f4f4f4;
+              }
+              .swal2-popup {
+                font-size: 1.6rem !important;
+                padding: 2.5rem !important;
+                width: 30rem !important;
+              }
+              .swal2-title {
+                font-size: 2rem !important;
+              }
+              .swal2-content {
+                font-size: 1.2rem !important;
+              }
+            </style>
           </head>
           <body>
             <script>
               Swal.fire({
                 icon: 'error',
                 title: 'Error',
-                text: 'No se encontró el email en la base de datos.',
-                confirmButtonColor: '#0a641a'
+                text: 'No se encontró el correo electrónico en la base de datos.',
+                confirmButtonColor: '#0a641a',
+                confirmButtonText: 'Volver',
+                customClass: {
+                  popup: 'animated shake'
+                }
               }).then(() => {
                 window.location.href = 'https://sports-tienda.vercel.app'; // Redirigir a tu frontend después de cerrar el alert
               });
@@ -422,14 +464,35 @@ app.get("/api/auth/verify-email", async (req, res) => {
       <html>
         <head>
           <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              background-color: #f4f4f4;
+            }
+            .swal2-popup {
+              font-size: 1.6rem !important;
+              padding: 2.5rem !important;
+              width: 30rem !important;
+            }
+            .swal2-title {
+              font-size: 2rem !important;
+            }
+            .swal2-content {
+              font-size: 1.2rem !important;
+            }
+          </style>
         </head>
         <body>
           <script>
             Swal.fire({
               icon: 'error',
               title: 'Error',
-              text: 'Enlace de verificación inválido o expirado.',
-              confirmButtonColor: '#0a641a'
+              text: 'El enlace de verificación es inválido o ha expirado.',
+              confirmButtonColor: '#0a641a',
+              confirmButtonText: 'Volver',
+              customClass: {
+                popup: 'animated shake'
+              }
             }).then(() => {
               window.location.href = 'https://sports-tienda.vercel.app'; // Redirigir a tu frontend después de cerrar el alert
             });
