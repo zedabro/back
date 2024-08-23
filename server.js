@@ -86,20 +86,10 @@ app.post("/api/auth/register", async (req, res) => {
         type: sequelize.QueryTypes.INSERT,
       }
     );
-    // Si el correo se envía con éxito
-    res.status(201).json({
-      message:
-        "Usuario registrado exitosamente. Por favor, verifica tu correo electrónico.",
-    });
-  } catch (error) {
-    // Si ocurre un error al enviar el correo, informar pero no enviar otra respuesta
-    console.error("Error al enviar el correo:", error);
-  }
-  const token = jwt.sign({ email }, secretKey, { expiresIn: "1h" });
-  const verificationLink = `https://back-wwpy.onrender.com/verificacion-correo?token=${token}`;
 
-  // Intentar enviar el correo electrónico
-  try {
+    const token = jwt.sign({ email }, secretKey, { expiresIn: "1h" });
+    const verificationLink = `https://back-wwpy.onrender.com/api/auth/verify-email?token=${token}`;
+
     await sendEmail(
       email,
       "Verificacion de correo electronico",
@@ -108,15 +98,21 @@ app.post("/api/auth/register", async (req, res) => {
           <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
             <h2 style="color: #333333; text-align: center;">Verificación de correo electrónico</h2>
             <p style="color: #555555; font-size: 16px;">Hola ${nombre},</p>
-            <p style="color: #555555; font-size: 16px;">Verifica tu correo haciendo clic en el siguiente boton:</p>
+            <p style="color: #555555; font-size: 16px;">Verifica tu correo haciendo clic en el siguiente botón:</p>
             <div style="text-align: center; margin: 20px 0;">
               <a href="${verificationLink}" style="background-color: #28a745; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-size: 16px; display: inline-block;">Verificar Correo</a>
             </div>
           </div>
         </div>
-        `
+      `
     );
-  } catch (err) {
+
+    res.status(201).json({
+      message:
+        "Usuario registrado exitosamente. Por favor, verifica tu correo electrónico.",
+    });
+  } catch (error) {
+    console.error("Error al registrar el usuario o enviar el correo:", error);
     res.status(500).json({ error: "Error en el registro de usuario" });
   }
 });
@@ -129,7 +125,6 @@ app.get("/api/auth/verify-email", async (req, res) => {
     console.log("Token decodificado:", decoded);
     const email = decoded.email;
 
-    // Ejecutar la consulta SQL para actualizar el email_verificado
     const [results, metadata] = await sequelize.query(
       "UPDATE clientes SET email_verificado = 1 WHERE email = ?",
       {
@@ -138,11 +133,9 @@ app.get("/api/auth/verify-email", async (req, res) => {
       }
     );
 
-    // Imprimir `metadata` para ver qué contiene
     console.log("Metadata después de la actualización:", metadata);
 
-    // Verificar si alguna fila fue afectada
-    const filasAfectadas = metadata; // Aquí asumimos que `metadata` es el número de filas afectadas
+    const filasAfectadas = metadata;
 
     if (filasAfectadas > 0) {
       res.json({ success: true, message: "Email verificado exitosamente" });
@@ -153,10 +146,7 @@ app.get("/api/auth/verify-email", async (req, res) => {
       });
     }
   } catch (error) {
-    console.error(
-      "Error en la verificación del correo electrónico:",
-      error.message
-    );
+    console.error("Error en la verificación del correo electrónico:", error.message);
     res.status(400).json({
       success: false,
       message: "Enlace de verificación inválido o expirado.",
@@ -1035,12 +1025,6 @@ app.get("/api/protected", (req, res) => {
   } catch (err) {
     res.status(401).json({ error: "Token no válido o expirado" });
   }
-});
-
-app.use(express.static(path.join(__dirname, 'dist')));
-
-app.get('*', (req, res) => {
-  res.sendFile(path.resolve(__dirname, 'dist', 'index.html'));
 });
 
 app.listen(port, () => {
