@@ -188,6 +188,34 @@ app.post("/api/reset-password", async (req, res) => {
   }
 });
 
+// Ruta para verificar el token
+app.post("/api/verificar-token", async (req, res) => {
+  const { token } = req.body;
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    // Verificar si el email existe en las tablas de clientes o personal_ventas
+    const [cliente] = await sequelize.query(
+      "SELECT * FROM clientes WHERE email = ?",
+      { replacements: [decoded.email], type: sequelize.QueryTypes.SELECT }
+    );
+
+    const [personal] = await sequelize.query(
+      "SELECT * FROM personal_ventas WHERE email = ?",
+      { replacements: [decoded.email], type: sequelize.QueryTypes.SELECT }
+    );
+
+    if (cliente || personal) {
+      res.status(200).json({ tokenValido: true });
+    } else {
+      res.status(404).json({ tokenValido: false });
+    }
+  } catch (error) {
+    console.error("Error al verificar el token:", error);
+    res.status(400).json({ tokenValido: false });
+  }
+});
+
 app.get("/api/auth/verify-email", async (req, res) => {
   const { token } = req.query;
 
