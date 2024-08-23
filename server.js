@@ -152,7 +152,7 @@ app.get("/api/auth/verify-email", async (req, res) => {
                 text: 'Email verificado exitosamente.',
                 confirmButtonColor: '#0a641a'
               }).then(() => {
-                window.location.href = '/login'; // Redirigir después de cerrar el alert
+                window.location.href = 'https://sports-tienda.vercel.app/login'; // Redirigir a tu frontend después de cerrar el alert
               });
             </script>
           </body>
@@ -173,7 +173,7 @@ app.get("/api/auth/verify-email", async (req, res) => {
                 text: 'No se encontró el email en la base de datos.',
                 confirmButtonColor: '#0a641a'
               }).then(() => {
-                window.location.href = '/'; // Redirigir después de cerrar el alert
+                window.location.href = 'https://sports-tienda.vercel.app'; // Redirigir a tu frontend después de cerrar el alert
               });
             </script>
           </body>
@@ -196,7 +196,7 @@ app.get("/api/auth/verify-email", async (req, res) => {
               text: 'Enlace de verificación inválido o expirado.',
               confirmButtonColor: '#0a641a'
             }).then(() => {
-              window.location.href = '/'; // Redirigir después de cerrar el alert
+              window.location.href = 'https://sports-tienda.vercel.app'; // Redirigir a tu frontend después de cerrar el alert
             });
           </script>
         </body>
