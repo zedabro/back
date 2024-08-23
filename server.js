@@ -143,19 +143,32 @@ app.post("/api/solicitar-recuperacion", async (req, res) => {
 
   const resetLink = `https://back-wwpy.onrender.com/reset-password?token=${token}`;
 
-  try {
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: usuario.email,
-      subject: "Recuperación de contraseña",
-      html: `<p>Haga clic en el siguiente enlace para restablecer su contraseña:</p><a href="${resetLink}">${resetLink}</a>`,
-    });
+try {
+  await transporter.sendMail({
+    from: process.env.EMAIL_USER,
+    to: usuario.email,
+    subject: "Recuperación de contraseña",
+    html: `
+      <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+        <h2 style="text-align: center; color: #0056b3;">Recuperación de Contraseña</h2>
+        <p style="text-align: center;">Para restablecer su contraseña, haga clic en el botón de abajo:</p>
+        <div style="text-align: center; margin: 20px 0;">
+          <a href="${resetLink}" 
+             style="background-color: #0056b3; color: #ffffff; text-decoration: none; 
+                    padding: 10px 20px; border-radius: 5px; display: inline-block; 
+                    font-size: 16px;">
+            Restablecer Contraseña
+          </a>
+        </div>
+        <p style="text-align: center;">Si no solicitó un cambio de contraseña, por favor ignore este correo.</p>
+      </div>
+    `,
+  });
 
-    res.status(200).json({ message: "Correo de recuperación enviado" });
-  } catch (error) {
-    console.error("Error al enviar el correo:", error);
-    res.status(500).json({ error: "Error al enviar el correo de recuperación" });
-  }
+  console.log("Correo de recuperación de contraseña enviado con éxito a:", usuario.email);
+} catch (error) {
+  console.error("Error al enviar el correo de recuperación de contraseña:", error);
+}
 });
 
 // Ruta para servir la página de restablecimiento de contraseña
