@@ -896,17 +896,6 @@ app.get("/api/listaproductos", authenticateToken, async (req, res) => {
   }
 });
 
-app.get("/api/clientes", async (req, res) => {
-  try {
-    const clientes = await sequelize.query("SELECT * FROM clientes", {
-      type: sequelize.QueryTypes.SELECT,
-    });
-    res.status(200).json(clientes);
-  } catch (err) {
-    console.error("Error al obtener los clientes:", err);
-    res.status(500).json({ error: "Error al obtener los clientes" });
-  }
-});
 
 app.post("/api/auth/carrito", async (req, res) => {
   const { id_cliente, id_producto, cantidad } = req.body;
@@ -918,28 +907,6 @@ app.post("/api/auth/carrito", async (req, res) => {
   const t = await sequelize.transaction();
 
   try {
-    // Verificar el stock disponible del producto
-    const producto = await sequelize.query(
-      "SELECT stock FROM productos WHERE id_producto = ?",
-      {
-        replacements: [id_producto],
-        type: sequelize.QueryTypes.SELECT,
-        transaction: t,
-      }
-    );
-
-    if (!producto || producto.length === 0) {
-      await t.rollback();
-      return res.status(404).json({ message: "Producto no encontrado." });
-    }
-
-    const stockDisponible = producto[0].stock;
-
-    if (cantidad > stockDisponible) {
-      await t.rollback();
-      return res.status(400).json({ message: "Cantidad solicitada excede el stock disponible." });
-    }
-
     // Verificar si el cliente ya tiene un carrito activo
     const carritoRows = await sequelize.query(
       "SELECT id_carrito FROM carrito WHERE id_cliente = ?",
@@ -949,6 +916,10 @@ app.post("/api/auth/carrito", async (req, res) => {
         transaction: t,
       }
     );
+
+    if (!Array.isArray(carritoRows)) {
+      throw new Error("Error al consultar el carrito");
+    }
 
     let id_carrito;
     if (carritoRows.length === 0) {
@@ -961,14 +932,14 @@ app.post("/api/auth/carrito", async (req, res) => {
           transaction: t,
         }
       );
-      id_carrito = result;
+      id_carrito = result; // Esto es el ID del carrito insertado
     } else {
       id_carrito = carritoRows[0].id_carrito;
     }
 
     // Verificar si el producto ya está en el carrito
     const carritoProductoRows = await sequelize.query(
-      "SELECT id_carrito_producto, cantidad FROM carrito_productos WHERE id_carrito = ? AND id_producto = ?",
+      "SELECT id_carrito_producto FROM carrito_productos WHERE id_carrito = ? AND id_producto = ?",
       {
         replacements: [id_carrito, id_producto],
         type: sequelize.QueryTypes.SELECT,
@@ -976,19 +947,16 @@ app.post("/api/auth/carrito", async (req, res) => {
       }
     );
 
+    if (!Array.isArray(carritoProductoRows)) {
+      throw new Error("Error al consultar los productos del carrito");
+    }
+
     if (carritoProductoRows.length > 0) {
       // Actualizar la cantidad si el producto ya está en el carrito
-      const nuevaCantidad = carritoProductoRows[0].cantidad + cantidad;
-
-      if (nuevaCantidad > stockDisponible) {
-        await t.rollback();
-        return res.status(400).json({ message: "Cantidad total en el carrito excede el stock disponible." });
-      }
-
       await sequelize.query(
-        "UPDATE carrito_productos SET cantidad = ? WHERE id_carrito = ? AND id_producto = ?",
+        "UPDATE carrito_productos SET cantidad = cantidad + ? WHERE id_carrito = ? AND id_producto = ?",
         {
-          replacements: [nuevaCantidad, id_carrito, id_producto],
+          replacements: [cantidad, id_carrito, id_producto],
           transaction: t,
         }
       );
@@ -1015,6 +983,10 @@ app.post("/api/auth/carrito", async (req, res) => {
       }
     );
 
+    if (!Array.isArray(updatedCarritoRows)) {
+      throw new Error("Error al recuperar el carrito actualizado");
+    }
+
     res.json({
       message: "Producto agregado al carrito",
       carrito: updatedCarritoRows,
@@ -1022,10 +994,59 @@ app.post("/api/auth/carrito", async (req, res) => {
   } catch (error) {
     await t.rollback();
     console.error("Error al agregar al carrito:", error);
-    res.status(500).json({ message: "Error al agregar el producto al carrito" });
+    res
+      .status(500)
+      .json({ message: "Error al agregar el producto al carrito" });
   }
 });
 
+app.get("/api/auth/carrito", async (req, res) => {
+  const { id_cliente } = req.query;
+
+  if (!id_cliente) {
+    return res.status(400).json({ message: "El ID del cliente es requerido." });
+  }
+
+  try {
+    const carritoRows = await sequelize.query(
+      "SELECT cp.*, p.descripcion, p.precio_unitario FROM carrito_productos cp JOIN productos p ON cp.id_producto = p.id_producto WHERE cp.id_carrito = (SELECT id_carrito FROM carrito WHERE id_cliente = ?)",
+      {
+        replacements: [id_cliente],
+        type: sequelize.QueryTypes.SELECT,
+      }
+    );
+
+    if (!Array.isArray(carritoRows)) {
+      throw new Error("Error al recuperar los productos del carrito");
+    }
+
+    res.json({
+      carrito: carritoRows,
+    });
+  } catch (error) {
+    console.error("Error al obtener el carrito:", error);
+    res.status(500).json({ message: "Error al obtener el carrito" });
+  }
+});
+
+app.delete("/api/auth/carrito/:id_carrito_producto", async (req, res) => {
+  const { id_carrito_producto } = req.params;
+
+  try {
+    await sequelize.query(
+      "DELETE FROM carrito_productos WHERE id_carrito_producto = ?",
+      {
+        replacements: [id_carrito_producto],
+      }
+    );
+    res.json({ message: "Producto eliminado del carrito" });
+  } catch (error) {
+    console.error("Error al eliminar del carrito:", error);
+    res
+      .status(500)
+      .json({ message: "Error al eliminar el producto del carrito" });
+  }
+});
 
 // Ruta protegida de ejemplo
 app.get("/api/protected", (req, res) => {
