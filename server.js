@@ -96,7 +96,7 @@ app.post("/api/auth/register", async (req, res) => {
     console.error("Error al enviar el correo:", error);
   }
   const token = jwt.sign({ email }, secretKey, { expiresIn: "1h" });
-  const verificationLink = `https://back-wwpy.onrender.com/verificacion?token=${token}`;
+  const verificationLink = `http://localhost:3306/verificacion?token=${token}`;
 
   // Intentar enviar el correo electrónico
   try {
