@@ -10,13 +10,7 @@ const path = require("path");
 const app = express();
 
 app.use(express.json());
-app.use(cors({
-  origin: 'https://back-wwpy.onrender.com', // Reemplaza con la URL de tu front-end en Vercel
-  methods: ['GET', 'POST', 'DELETE', 'PUT', 'OPTIONS'], // Métodos HTTP permitidos
-  allowedHeaders: ['Content-Type', 'Authorization'], // Encabezados permitidos
-  credentials: true // Si necesitas enviar cookies o encabezados de autorización
-}));
-
+app.use(cors());
 
 const secretKey = process.env.JWT_SECRET || "your_secret_key";
 
@@ -102,7 +96,7 @@ app.post("/api/auth/register", async (req, res) => {
     console.error("Error al enviar el correo:", error);
   }
   const token = jwt.sign({ email }, secretKey, { expiresIn: "1h" });
-  const verificationLink = `https://back-wwpy.onrender.com/confirmacion-verificacion?token=${token}`;
+  const verificationLink = `http://localhost:3000/confirmacion-verificacion?token=${token}`;
 
   // Intentar enviar el correo electrónico
   try {
@@ -1043,12 +1037,8 @@ app.get("/api/protected", (req, res) => {
   }
 });
 
-// Ruta de prueba para verificar el servidor
-app.get("/", (req, res) => {
-  res.send("Servidor funcionando correctamente");
-});
+app.use(express.static(path.join(__dirname, "dist")));
 
-// Escuchar en el puerto configurado
 app.listen(port, () => {
-  console.log(`Servidor corriendo en puerto ${port}`);
+  console.log(`Servidor escuchando en http://localhost:${port}`);
 });
