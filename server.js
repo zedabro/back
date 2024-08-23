@@ -138,19 +138,70 @@ app.get("/api/auth/verify-email", async (req, res) => {
     const filasAfectadas = metadata;
 
     if (filasAfectadas > 0) {
-      res.json({ success: true, message: "Email verificado exitosamente" });
+      // Respuesta con SweetAlert para éxito
+      res.send(`
+        <html>
+          <head>
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+          </head>
+          <body>
+            <script>
+              Swal.fire({
+                icon: 'success',
+                title: '¡Éxito!',
+                text: 'Email verificado exitosamente.',
+                confirmButtonColor: '#0a641a'
+              }).then(() => {
+                window.location.href = '/login'; // Redirigir después de cerrar el alert
+              });
+            </script>
+          </body>
+        </html>
+      `);
     } else {
-      res.status(400).json({
-        success: false,
-        message: "No se encontró el email en la base de datos.",
-      });
+      // Respuesta con SweetAlert para error de email no encontrado
+      res.send(`
+        <html>
+          <head>
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+          </head>
+          <body>
+            <script>
+              Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'No se encontró el email en la base de datos.',
+                confirmButtonColor: '#0a641a'
+              }).then(() => {
+                window.location.href = '/'; // Redirigir después de cerrar el alert
+              });
+            </script>
+          </body>
+        </html>
+      `);
     }
   } catch (error) {
     console.error("Error en la verificación del correo electrónico:", error.message);
-    res.status(400).json({
-      success: false,
-      message: "Enlace de verificación inválido o expirado.",
-    });
+    // Respuesta con SweetAlert para token inválido o expirado
+    res.send(`
+      <html>
+        <head>
+          <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        </head>
+        <body>
+          <script>
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'Enlace de verificación inválido o expirado.',
+              confirmButtonColor: '#0a641a'
+            }).then(() => {
+              window.location.href = '/'; // Redirigir después de cerrar el alert
+            });
+          </script>
+        </body>
+      </html>
+    `);
   }
 });
 
