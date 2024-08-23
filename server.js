@@ -117,6 +117,77 @@ app.post("/api/auth/register", async (req, res) => {
   }
 });
 
+app.post("/api/solicitar-recuperacion", async (req, res) => {
+  const { email } = req.body;
+
+  // Buscar al usuario en ambas tablas
+  const [cliente] = await sequelize.query(
+    "SELECT * FROM clientes WHERE email = ?",
+    { replacements: [email], type: sequelize.QueryTypes.SELECT }
+  );
+
+  const [personal] = await sequelize.query(
+    "SELECT * FROM personal_ventas WHERE email = ?",
+    { replacements: [email], type: sequelize.QueryTypes.SELECT }
+  );
+
+  const usuario = cliente || personal;
+
+  if (!usuario) {
+    return res.status(404).json({ message: "Usuario no encontrado" });
+  }
+
+  const token = jwt.sign({ email: usuario.email }, process.env.JWT_SECRET, {
+    expiresIn: "1h",
+  });
+
+  const resetLink = https://back-wwpy.onrender.com/reset-password?token=${token};
+
+  try {
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: usuario.email,
+      subject: "Recuperación de contraseña",
+      html: <p>Haga clic en el siguiente enlace para restablecer su contraseña:</p><a href="${resetLink}">${resetLink}</a>,
+    });
+
+    res.status(200).json({ message: "Correo de recuperación enviado" });
+  } catch (error) {
+    console.error("Error al enviar el correo:", error);
+    res.status(500).json({ error: "Error al enviar el correo de recuperación" });
+  }
+});
+
+// Ruta para actualizar la contraseña
+app.post("/api/reset-password", async (req, res) => {
+  const { token, newPassword } = req.body;
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    // Actualizar la contraseña en ambas tablas
+    const [resultCliente] = await sequelize.query(
+      "UPDATE clientes SET contraseña = ? WHERE email = ?",
+      { replacements: [hashedPassword, decoded.email] }
+    );
+
+    const [resultPersonal] = await sequelize.query(
+      "UPDATE personal_ventas SET contraseña = ? WHERE email = ?",
+      { replacements: [hashedPassword, decoded.email] }
+    );
+
+    if (resultCliente.affectedRows > 0 || resultPersonal.affectedRows > 0) {
+      res.status(200).json({ message: "Contraseña actualizada con éxito" });
+    } else {
+      res.status(404).json({ message: "Usuario no encontrado" });
+    }
+  } catch (error) {
+    console.error("Error al actualizar la contraseña:", error);
+    res.status(400).json({ error: "Token inválido o expirado" });
+  }
+});
+
 app.get("/api/auth/verify-email", async (req, res) => {
   const { token } = req.query;
 
