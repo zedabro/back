@@ -896,6 +896,17 @@ app.get("/api/listaproductos", authenticateToken, async (req, res) => {
   }
 });
 
+app.get("/api/clientes", async (req, res) => {
+  try {
+    const clientes = await sequelize.query("SELECT * FROM clientes", {
+      type: sequelize.QueryTypes.SELECT,
+    });
+    res.status(200).json(clientes);
+  } catch (err) {
+    console.error("Error al obtener los clientes:", err);
+    res.status(500).json({ error: "Error al obtener los clientes" });
+  }
+});
 
 app.post("/api/auth/carrito", async (req, res) => {
   const { id_cliente, id_producto, cantidad } = req.body;
