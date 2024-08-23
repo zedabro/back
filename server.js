@@ -10,7 +10,13 @@ const path = require("path");
 const app = express();
 
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+  origin: 'https://back-wwpy.onrender.com', // Reemplaza con la URL de tu front-end en Vercel
+  methods: ['GET', 'POST', 'DELETE', 'PUT', 'OPTIONS'], // Métodos HTTP permitidos
+  allowedHeaders: ['Content-Type', 'Authorization'], // Encabezados permitidos
+  credentials: true // Si necesitas enviar cookies o encabezados de autorización
+}));
+
 
 const secretKey = process.env.JWT_SECRET || "your_secret_key";
 
@@ -1039,6 +1045,12 @@ app.get("/api/protected", (req, res) => {
 
 app.use(express.static(path.join(__dirname, "dist")));
 
+// Ruta de prueba para verificar el servidor
+app.get("/", (req, res) => {
+  res.send("Servidor funcionando correctamente");
+});
+
+// Escuchar en el puerto configurado
 app.listen(port, () => {
-  console.log(`Servidor escuchando en http://localhost:${port}`);
+  console.log(`Servidor corriendo en puerto ${port}`);
 });
