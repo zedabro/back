@@ -102,7 +102,7 @@ app.post("/api/auth/register", async (req, res) => {
   try {
     await sendEmail(
       email,
-      "Verificación de correo electrónico",
+      "Verificacion de correo electronico",
       `
         <div style="width: 100%; font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px; margin: 0;">
           <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
