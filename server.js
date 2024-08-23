@@ -158,6 +158,125 @@ app.post("/api/solicitar-recuperacion", async (req, res) => {
   }
 });
 
+// Ruta para servir la página de restablecimiento de contraseña
+app.get("/reset-password", (req, res) => {
+  const { token } = req.query;
+
+  // Verifica si el token es válido antes de mostrar el formulario
+  try {
+    jwt.verify(token, process.env.JWT_SECRET);
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html lang="es">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Restablecer Contraseña</title>
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f9;
+            margin: 0;
+          }
+          .container {
+            background: #ffffff;
+            padding: 2rem;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            width: 300px;
+            text-align: center;
+          }
+          .title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: #333;
+          }
+          .input-field {
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+          }
+          .button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+          }
+          .button:hover {
+            background-color: #45a049;
+          }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <h2 class="title">Restablecer Contraseña</h2>
+          <input type="password" id="newPassword" class="input-field" placeholder="Nueva contraseña">
+          <input type="password" id="confirmPassword" class="input-field" placeholder="Confirmar contraseña">
+          <button class="button" onclick="resetPassword()">Restablecer</button>
+        </div>
+
+        <script>
+          function resetPassword() {
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const token = "${token}";
+
+            if (newPassword !== confirmPassword) {
+              Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Las contraseñas no coinciden.',
+                confirmButtonColor: '#0a641a'
+              });
+              return;
+            }
+
+            axios.post('https://back-wwpy.onrender.com/api/reset-password', {
+              token: token,
+              newPassword: newPassword
+            })
+            .then(response => {
+              Swal.fire({
+                icon: 'success',
+                title: 'Contraseña restablecida',
+                text: response.data.message,
+                confirmButtonColor: '#0a641a'
+              }).then(() => {
+                window.location.href = 'https://sports-tienda.vercel.app/login';
+              });
+            })
+            .catch(error => {
+              Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: error.response.data.error || 'Error al restablecer la contraseña',
+                confirmButtonColor: '#0a641a'
+              });
+            });
+          }
+        </script>
+      </body>
+      </html>
+    `;
+
+    res.send(htmlContent);
+  } catch (error) {
+    res.status(400).send("Token inválido o expirado");
+  }
+});
+
 // Ruta para actualizar la contraseña
 app.post("/api/reset-password", async (req, res) => {
   const { token, newPassword } = req.body;
