@@ -188,7 +188,6 @@ app.post("/api/reset-password", async (req, res) => {
   }
 });
 
-// Ruta para verificar el token
 app.post("/api/verificar-token", async (req, res) => {
   const { token } = req.body;
 
@@ -211,8 +210,11 @@ app.post("/api/verificar-token", async (req, res) => {
       res.status(404).json({ tokenValido: false });
     }
   } catch (error) {
-    console.error("Error al verificar el token:", error);
-    res.status(400).json({ tokenValido: false });
+    if (error.name === 'TokenExpiredError') {
+      res.status(400).json({ tokenValido: false, message: 'Token expirado.' });
+    } else {
+      res.status(400).json({ tokenValido: false, message: 'Token inválido.' });
+    }
   }
 });
 
