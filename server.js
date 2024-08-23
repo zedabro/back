@@ -102,13 +102,13 @@ app.post("/api/auth/register", async (req, res) => {
   try {
     await sendEmail(
       email,
-      "Verificación de correo electrónico",
+      "Verificacion de correo electronico",
       `
         <div style="width: 100%; font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px; margin: 0;">
           <div style="max-width: 600px; margin: auto; background-color: #ffffff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
             <h2 style="color: #333333; text-align: center;">Verificación de correo electrónico</h2>
             <p style="color: #555555; font-size: 16px;">Hola ${nombre},</p>
-            <p style="color: #555555; font-size: 16px;">Por favor verifica tu correo haciendo clic en el siguiente boton:</p>
+            <p style="color: #555555; font-size: 16px;">Verifica tu correo haciendo clic en el siguiente boton:</p>
             <div style="text-align: center; margin: 20px 0;">
               <a href="${verificationLink}" style="background-color: #28a745; color: #ffffff; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-size: 16px; display: inline-block;">Verificar Correo</a>
             </div>
