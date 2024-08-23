@@ -96,7 +96,7 @@ app.post("/api/auth/register", async (req, res) => {
     console.error("Error al enviar el correo:", error);
   }
   const token = jwt.sign({ email }, secretKey, { expiresIn: "1h" });
-  const verificationLink = `http://localhost:3306/verificacion?token=${token}`;
+  const verificationLink = `https://back-wwpy.onrender.com/verificacion?token=${token}`;
 
   // Intentar enviar el correo electrónico
   try {
@@ -1037,7 +1037,13 @@ app.get("/api/protected", (req, res) => {
   }
 });
 
-// app.use(express.static(path.join(__dirname, "dist")));
+app.use('/api', apiRoutes);
+
+app.use(express.static(path.join(__dirname, 'dist')));
+
+app.get('*', (req, res) => {
+  res.sendFile(path.resolve(__dirname, 'dist', 'index.html'));
+});
 
 app.listen(port, () => {
   console.log(`Servidor escuchando en http://localhost:${port}`);
