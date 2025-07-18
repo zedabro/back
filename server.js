@@ -17,13 +17,13 @@ const secretKey = process.env.JWT_SECRET || "your_secret_key";
 const port = process.env.PORT || 3306;
 
 const sequelize = new Sequelize(
-  process.env.DB_NAME || "b7mnngmripovf9lushzk",
+  process.env.DB_NAME || "bj5uyczyd9jkkxb2i1rp",
   process.env.DB_USER || "uocdbukigtlceh3l",
   process.env.DB_PASSWORD || "ZG1vqlcbbH9II3aw9xno",
   {
     host:
       process.env.DB_HOST ||
-      "b7mnngmripovf9lushzk-mysql.services.clever-cloud.com",
+      "bj5uyczyd9jkkxb2i1rp-mysql.services.clever-cloud.com",
     dialect: "mysql",
   }
 );
